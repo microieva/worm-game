@@ -1,1 +1,2 @@
-web: java $JAVA_OPTS -cp target/classes:target/m2e-wtp/*.jar com.foo.Main
+
+web: java -jar target/dependency/webapp-runner.jar target/*.war --port $PORT

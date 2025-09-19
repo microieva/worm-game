@@ -1,0 +1,28 @@
+# Ignore everything
+*
+
+# Allow necessary files
+!src/
+!pom.xml
+!target/*.jar
+!Dockerfile
+
+# Exclude specific patterns
+**/target/
+**/.git/
+**/.gitignore
+**/.mvn/
+**/mvnw
+**/mvnw.cmd
+**/HELP.md
+**/*.iml
+**/.idea/
+**/.settings/
+**/.classpath
+**/.project
+**/.vscode/
+**/node_modules/
+**/dist/
+**/build/
+**/*.log
+**/logs/

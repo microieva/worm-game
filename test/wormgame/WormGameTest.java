@@ -1,6 +1,6 @@
-package wormgame;
+package com.portfolio.wormgame;
 
-import wormgame.Direction;
+import com.portfolio.wormgame.Direction;
 import fi.helsinki.cs.tmc.edutestutils.Points;
 import fi.helsinki.cs.tmc.edutestutils.ReflectionUtils;
 import fi.helsinki.cs.tmc.edutestutils.Reflex;
@@ -29,9 +29,9 @@ import java.util.Scanner;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-import wormgame.gui.UserInterface;
-import wormgame.gui.Updatable;
-import wormgame.game.WormGame;
+import com.portfolio.wormgame.gui.UserInterface;
+import com.portfolio.wormgame.gui.Updatable;
+import com.portfolio.wormgame.game.WormGame;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;

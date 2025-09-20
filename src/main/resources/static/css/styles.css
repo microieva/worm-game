@@ -1,0 +1,70 @@
+
+body { font-family: Arial; background: #2c3e50; color: white; max-height:100vh;}
+.container { margin: 0 auto; text-align: center; }
+.content-wrapper {width:100%; display:flex; flex-direction: column; gap: 15px;}
+button { padding: 15px 30px; margin: 10px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+#gameStream { border: 3px solid #3498db; margin: auto; background: black; width: 36rem; height:36rem;}
+.game-controls { margin:auto; align-self: center; }
+.control-btn { background: #27ae60; }
+.control-btn.pause { background: #8e8882; }
+.control-btn.stop { background: #e74c3c; }
+.game-controls-mobile{display:none;}
+.game-controls{display:flex;}
+
+.arrow-controls {
+    display: none;
+    grid-template-columns: repeat(3, 1fr); 
+    grid-template-rows: repeat(3, 1fr);   
+    gap: 10px;
+    margin: 20px auto;
+}
+
+.arrow-btn {
+    font-size: 2rem;
+    background: transparent;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.arrow-btn:active {
+    background: #1c6ea4;
+    transform: scale(0.95);
+}
+
+.arrow-btn:nth-child(1) {
+    grid-column: 2; 
+    grid-row: 1;   
+}
+
+.arrow-btn:nth-child(2) {
+    grid-column: 1; 
+    grid-row: 2;   
+}
+
+.arrow-btn:nth-child(3) { 
+    grid-column: 2; 
+    grid-row: 3;    
+}
+
+.arrow-btn:nth-child(4) { 
+    grid-column: 3; 
+    grid-row: 2;  
+}
+
+@media (max-width: 1023px) {
+    .arrow-controls {
+        display: grid;
+    }
+    #gameStream {
+        width:92vw;
+        height:auto;
+    }
+}
+
+@media (max-width: 570px) {
+    .game-controls {display:none;}
+    .game-controls-mobile {display:block;}
+}

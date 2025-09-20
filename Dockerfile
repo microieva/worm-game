@@ -17,7 +17,7 @@ LABEL maintainer="ievavyl@yahoo.com"
 WORKDIR /app
 
 # Copy the built JAR from the builder stage
-COPY --from=builder /app/target/snake-game-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
+COPY --from=builder /app/target/wormgame-1.0-SNAPSHOT-jar-with-dependencies.jar app.jar
 
 RUN groupadd -r snakegroup && useradd -r -g snakegroup snakeuser && \
     chown -R snakeuser:snakegroup /app

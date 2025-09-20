@@ -35,9 +35,14 @@ public class Worm {
     public Direction getDirection() {
         return this.originalDirection;
     }
-    
-    public void setDirection(Direction dir) {
-        this.originalDirection = dir;
+
+    public void setDirection(Direction newDirection) {
+        if (this.originalDirection == Direction.UP && newDirection == Direction.DOWN) return;
+        if (this.originalDirection == Direction.DOWN && newDirection == Direction.UP) return;
+        if (this.originalDirection == Direction.LEFT && newDirection == Direction.RIGHT) return;
+        if (this.originalDirection == Direction.RIGHT && newDirection == Direction.LEFT) return;
+        
+        this.originalDirection = newDirection;
     }
     
     public void move() { // GitHub

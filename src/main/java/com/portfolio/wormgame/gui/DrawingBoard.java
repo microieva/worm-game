@@ -7,6 +7,8 @@ import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
 
 public class DrawingBoard extends JPanel implements Updatable {
     
@@ -60,5 +62,21 @@ public class DrawingBoard extends JPanel implements Updatable {
     
     public void update() {
         repaint();
+    }
+
+   public BufferedImage captureScreenshot() {
+        if (getWidth() <= 0 || getHeight() <= 0) {
+            return null;
+        }
+        
+        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = image.createGraphics();
+        paintAll(g2d);
+        g2d.dispose();
+        return image;
+    }
+
+    public void setGame(WormGame newGame) {
+        this.game = newGame;
     }
 }

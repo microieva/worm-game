@@ -1,0 +1,13 @@
+{
+    "name": "Worm Game VNC Server",
+    "description": "Java Worm Game streaming via VNC",
+    "version": "1.0.0",
+    "author": "Ieva Vyliaudaite",
+    "repository": "https://github.com/microieva/worm-game",
+    "vnc": {
+        "host": "localhost",
+        "port": 8080,
+        "password": "",
+        "path": ""
+    }
+}

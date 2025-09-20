@@ -20,7 +20,7 @@
         <java.version>11</java.version>
         <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <jetty.version>9.4.51.v20230217</jetty.version>
+        <jetty.version>9.4.56.v20240826</jetty.version>
         <jackson.version>2.15.2</jackson.version>
     </properties>
     

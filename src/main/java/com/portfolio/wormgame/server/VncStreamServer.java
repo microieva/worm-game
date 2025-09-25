@@ -101,7 +101,7 @@ public class VncStreamServer {
             if (path.endsWith(".png")) contentType = "image/png";
             if (path.endsWith(".jpg") || path.endsWith(".jpeg")) contentType = "image/jpeg";
             
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream("icons" + path)) {
+            try (InputStream is = getClass().getClassLoader().getResourceAsStream("static" + path)) {
                 if (is != null) {
                     resp.setContentType(contentType);
                     resp.getOutputStream().write(is.readAllBytes());

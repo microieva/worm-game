@@ -44,17 +44,15 @@ public class VncStreamServer {
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
         
-        // Add screen capture servlet
-        context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
+        // 1. Root redirect FIRST (most specific path)
+        context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");
         
-        // Add API endpoints
+        // 2. API endpoints
+        context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
         context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
         context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
         
-        // Add root redirect to vnc.html
-        context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");
-        
-        // ✅ Single static resource handler for everything else (HTML, icons, etc.)
+        // 3. Static resources LAST (catch-all)
         context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
         
         webServer.setHandler(context);
@@ -93,6 +91,7 @@ public class VncStreamServer {
             if (path == null) path = "";
             
             String contentType = "text/plain";
+            if (path.endsWith(".html")) contentType = "text/html";
             if (path.endsWith(".css")) contentType = "text/css";
             if (path.endsWith(".js")) contentType = "application/javascript";
             if (path.endsWith(".png")) contentType = "image/png";

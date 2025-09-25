@@ -72,14 +72,14 @@ public class VncStreamServer {
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
                 throws ServletException, IOException {
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream("vnc.html")) {
+            try (InputStream is = getClass().getClassLoader().getResourceAsStream("static/vnc.html")) {
                 if (is != null) {
                     String html = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                     resp.setContentType("text/html; charset=utf-8");
                     resp.getWriter().write(html);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    resp.getWriter().write("vnc.html not found in resources");
+                    resp.getWriter().write("vnc.html not found in resources at static/vnc.html");
                 }
             }
         }

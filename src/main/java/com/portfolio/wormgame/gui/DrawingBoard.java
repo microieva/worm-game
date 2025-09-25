@@ -24,30 +24,20 @@ public class DrawingBoard extends JPanel implements Updatable {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         // APPLE:
-        ImageIcon appleIcon = new ImageIcon("src/main/resources/icons/apple.jpg");
+        ImageIcon appleIcon = new ImageIcon("src/main/resources/static/icons/apple.jpg");
         Image scaledAppleIcon = scaleImage(appleIcon.getImage(), pieceLength, pieceLength);
         ImageIcon apple = new ImageIcon(scaledAppleIcon);
         apple.paintIcon(this, g, game.getApple().getX()*pieceLength, game.getApple().getY()*pieceLength);
         // ORANGE:
-        ImageIcon orangeIcon = new ImageIcon("src/main/resources/icons/orange.jpg");
+        ImageIcon orangeIcon = new ImageIcon("src/main/resources/static/icons/orange.jpg");
         Image scaledOrangeIcon = scaleImage(orangeIcon.getImage(), pieceLength, pieceLength);
         ImageIcon orange = new ImageIcon(scaledOrangeIcon);
         orange.paintIcon(this, g, game.getOrange().getX()*pieceLength, game.getOrange().getY()*pieceLength);
         // MUSHROOM:
-        ImageIcon mushroomIcon = new ImageIcon("src/main/resources/icons/mushroom.jpg");
+        ImageIcon mushroomIcon = new ImageIcon("src/main/resources/static/icons/mushroom.jpg");
         Image scaledMushroomIcon = scaleImage(mushroomIcon.getImage(), pieceLength, pieceLength);
         ImageIcon mushroom = new ImageIcon(scaledMushroomIcon);
         mushroom.paintIcon(this, g, game.getMushroom().getX()*pieceLength, game.getMushroom().getY()*pieceLength);
-        
-         /*g.setColor(Color.orange);
-        g.fillOval(game.getOrange().getX()*pieceLength, game.getOrange().getY()*pieceLength, pieceLength, pieceLength);
-      
-        g.setColor(Color.red);
-        g.fillOval(game.getApple().getX()*pieceLength, game.getApple().getY()*pieceLength, pieceLength, pieceLength);
-        
-        g.setColor(Color.pink);
-        g.fillOval(game.getMushroom().getX()*pieceLength, game.getMushroom().getY()*pieceLength, pieceLength, pieceLength);
-        */
          
         // WORM :
         g.setColor(Color.BLACK);

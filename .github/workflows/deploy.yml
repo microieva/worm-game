@@ -30,6 +30,10 @@ jobs:
           # Pull latest code
           echo "📥 Pulling latest code..."
           git pull origin master
+
+          echo "🧹 Cleaning previous builds..."
+          ./mvnw clean
+          rm -rf target/
           
           # Run start script
           echo "🔧 Running setup script..."

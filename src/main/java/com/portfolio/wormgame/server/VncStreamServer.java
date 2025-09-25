@@ -49,16 +49,13 @@ public class VncStreamServer {
         
         // Add API endpoints
         context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
-        
-        // Add HTML servlet to serve vnc.html
-        context.addServlet(new ServletHolder(new HtmlServlet()), "/vnc.html");   
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
+        context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
         
         // Add root redirect to vnc.html
         context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");
-
-        context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
-
+        
+        // ✅ Single static resource handler for everything else (HTML, icons, etc.)
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
         
         webServer.setHandler(context);
         webServer.start();

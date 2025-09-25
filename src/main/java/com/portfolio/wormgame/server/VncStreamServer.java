@@ -44,20 +44,49 @@ public class VncStreamServer {
         ServletContextHandler context = new ServletContextHandler();
         context.setContextPath("/");
         
-        // 1. Root redirect FIRST (most specific path)
+        // 1. Root redirect (exact path)
         context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");
         
-        // 2. API endpoints
+        // 2. API endpoints (specific patterns)
         context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
         context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
         context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
         
-        // 3. Static resources LAST (catch-all)
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
+        // 3. Static resources (specific patterns, NOT catch-all)
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/vnc.html");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.html");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.css");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.js");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.jpg");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.png");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/icons/*");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/css/*");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/js/*");
         
         webServer.setHandler(context);
         webServer.start();
     }
+
+    // private void startWebServer() throws Exception {
+    //     webServer = new Server(webPort);
+        
+    //     ServletContextHandler context = new ServletContextHandler();
+    //     context.setContextPath("/");
+        
+    //     // 1. Root redirect FIRST (most specific path)
+    //     context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");
+        
+    //     // 2. API endpoints
+    //     context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
+    //     context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
+    //     context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
+        
+    //     // 3. Static resources LAST (catch-all)
+    //     context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
+        
+    //     webServer.setHandler(context);
+    //     webServer.start();
+    // }
 
     public void stop() throws Exception {
         if (webServer != null) {

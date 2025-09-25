@@ -71,7 +71,7 @@ public class VncStreamServer {
                 throws ServletException, IOException {
             String path = req.getPathInfo();
             if (path == null) path = "";
-            
+
             String contentType = "text/plain";
             if (path.endsWith(".html")) contentType = "text/html";
             if (path.endsWith(".css")) contentType = "text/css";

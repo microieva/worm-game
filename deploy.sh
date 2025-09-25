@@ -24,7 +24,6 @@ echo "☕ Phase 2: Ensuring Java 11 is installed..."
 if ! command -v java &> /dev/null || ! java -version 2>&1 | grep -q "11"; then
     echo "Java 11 not found. Installing..."
     
-    # Install OpenJDK 11
     sudo apt-get install -y openjdk-11-jdk
     
     # Set JAVA_HOME
@@ -168,7 +167,7 @@ else
     echo "Waiting additional time..."
     sleep 10
     
-    # Retry the health check
+    # Retry check
     if curl -f http://localhost:8080/ > /dev/null 2>&1; then
         echo "✅ Application is now responding"
     else

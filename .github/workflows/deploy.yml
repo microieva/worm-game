@@ -20,6 +20,12 @@ jobs:
           cd /root/worm-game
           
           echo "🚀 Starting deployment process..."
+
+          # Stop existing containers
+          echo "🛑 Stopping existing containers..."
+          docker compose down || echo "⚠️  No containers to stop (first deployment?)"
+          docker container prune -f
+          docker system prune -f
           
           # Pull latest code
           echo "📥 Pulling latest code..."

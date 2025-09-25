@@ -1,47 +1,56 @@
 #!/bin/bash
+set -e
 
-check_xvfb() {
-    if ! ps aux | grep -v grep | grep -q "Xvfb :99"; then
-        echo "Starting Xvfb..."
-        Xvfb :99 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
-        export DISPLAY=:99
-    fi
+cleanup() {
+    echo "Cleaning up..."
+    kill $XVFB_PID 2>/dev/null || true
+    kill $FLUXBOX_PID 2>/dev/null || true
+    kill $VNC_PID 2>/dev/null || true
+    kill $JAVA_PID 2>/dev/null || true
+    rm -f /tmp/.X99-lock
+    echo "Cleanup completed"
+    exit 0
 }
 
-start_fluxbox() {
-    if ! ps aux | grep -v grep | grep -q "fluxbox"; then
-        echo "Starting Fluxbox..."
-        fluxbox &
-    fi
-}
+trap cleanup SIGTERM SIGINT SIGQUIT
 
-start_vnc() {
-    if ! ps aux | grep -v grep | grep -q "x11vnc"; then
-        echo "Starting VNC server..."
-        x11vnc -display :99 -forever -shared -nopw -listen 0.0.0.0 &
-    fi
-}
-
-wait_for_xvfb() {
-    echo "Waiting for Xvfb to be ready..."
-    while ! xdpyinfo -display :99 >/dev/null 2>&1; do
-        sleep 1
-    done
-    echo "Xvfb is ready"
-}
+rm -f /tmp/.X99-lock
+rm -f /tmp/.X11-unix/X99
 
 echo "Starting GUI environment..."
 
-check_xvfb
-wait_for_xvfb
+echo "Starting Xvfb..."
+Xvfb :99 -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
+XVFB_PID=$!
 
-start_fluxbox
+echo "Waiting for Xvfb to be ready..."
+max_attempts=30
+attempt=1
+while ! xdpyinfo -display :99 >/dev/null 2>&1; do
+    if [ $attempt -ge $max_attempts ]; then
+        echo "Xvfb failed to start after $max_attempts attempts"
+        exit 1
+    fi
+    sleep 1
+    attempt=$((attempt + 1))
+done
+echo "Xvfb is ready"
 
-start_vnc
+echo "Starting Fluxbox..."
+fluxbox &
+FLUXBOX_PID=$!
 
-sleep 3
+echo "Starting VNC server..."
+lsof -ti:5900 | xargs -r kill -9
+x11vnc -display :99 -forever -shared -nopw -listen 0.0.0.0 -rfbport 5900 &
+VNC_PID=$!
+
+sleep 2
 
 echo "Starting Worm Game..."
 java -jar app.jar &
+JAVA_PID=$!
 
-echo "Worm Game application started"
+echo "All services started. PID: Xvfb=$XVFB_PID, Fluxbox=$FLUXBOX_PID, VNC=$VNC_PID, Java=$JAVA_PID"
+
+wait $JAVA_PID

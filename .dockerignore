@@ -6,6 +6,7 @@
 !pom.xml
 !target/*.jar
 !Dockerfile
+!start.sh
 
 # Exclude specific patterns
 **/target/

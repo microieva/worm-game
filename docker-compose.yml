@@ -1,0 +1,14 @@
+services:
+  worm-game:
+    build: 
+      context: .
+      dockerfile: Dockerfile 
+    ports:
+      - "8080:8080"  # Web interface
+      - "5900:5900"  # VNC (optional)
+    environment:
+      - DISPLAY=:99
+      - JAVA_OPTS=-Xmx512m
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    restart: unless-stopped

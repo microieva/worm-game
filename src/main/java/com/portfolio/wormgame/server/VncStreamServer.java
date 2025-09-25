@@ -52,7 +52,7 @@ public class VncStreamServer {
         
         // Add HTML servlet to serve vnc.html
         context.addServlet(new ServletHolder(new HtmlServlet()), "/vnc.html");
-        context.addServlet("static", new StaticResourceServlet()).addMapping("/*");
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
         
         // Add root redirect to vnc.html
         context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");

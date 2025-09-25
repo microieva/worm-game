@@ -158,16 +158,9 @@ else
 fi
 
 echo "Testing application health..."
-if curl -f http://localhost:8080/api/status > /dev/null 2>&1 || \
-   curl -f http://localhost:8080/ > /dev/null 2>&1; then
+if curl -f http://localhost:8080/ > /dev/null 2>&1; then
     echo "✅ Application is responding on port 8080"
     
-    # Test the actual game status endpoint
-    RESPONSE=$(curl -s http://localhost:8080/api/status || echo "{}")
-    if echo "$RESPONSE" | grep -q "status"; then
-        echo "✅ Game API is functioning correctly"
-        echo "API Response: $RESPONSE"
-    fi
 else
     echo "⚠️ Application might still be starting up..."
     echo "Current logs:"
@@ -176,7 +169,7 @@ else
     sleep 10
     
     # Retry the health check
-    if curl -f http://localhost:8080/api/status > /dev/null 2>&1; then
+    if curl -f http://localhost:8080/ > /dev/null 2>&1; then
         echo "✅ Application is now responding"
     else
         echo "❌ Application failed to start properly"
@@ -194,7 +187,6 @@ echo ""
 echo "🌐 Application URLs:"
 EXTERNAL_IP=$(curl -s ifconfig.me || hostname -I | awk '{print $1}' || echo "localhost")
 echo "   - Web Interface: http://$EXTERNAL_IP:8080"
-echo "   - Game Status API: http://$EXTERNAL_IP:8080/api/status"
 echo "   - VNC Server (optional): $EXTERNAL_IP:5900"
 echo ""
 echo "🎮 How to Play:"

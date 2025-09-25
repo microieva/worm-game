@@ -52,63 +52,16 @@ public class VncStreamServer {
         context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
         context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
         
-        // 3. Static resources (specific patterns, NOT catch-all)
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/vnc.html");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.html");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.css");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.js");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.jpg");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "*.png");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/icons/*");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/css/*");
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/js/*");
+        // 3. Static resources
+        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
         
         webServer.setHandler(context);
         webServer.start();
     }
 
-    // private void startWebServer() throws Exception {
-    //     webServer = new Server(webPort);
-        
-    //     ServletContextHandler context = new ServletContextHandler();
-    //     context.setContextPath("/");
-        
-    //     // 1. Root redirect FIRST (most specific path)
-    //     context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");
-        
-    //     // 2. API endpoints
-    //     context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
-    //     context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
-    //     context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
-        
-    //     // 3. Static resources LAST (catch-all)
-    //     context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
-        
-    //     webServer.setHandler(context);
-    //     webServer.start();
-    // }
-
     public void stop() throws Exception {
         if (webServer != null) {
             webServer.stop();
-        }
-    }
-
-    // Servlet to serve vnc.html from resources
-    public static class HtmlServlet extends HttpServlet {
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-                throws ServletException, IOException {
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream("static/vnc.html")) {
-                if (is != null) {
-                    String html = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                    resp.setContentType("text/html; charset=utf-8");
-                    resp.getWriter().write(html);
-                } else {
-                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    resp.getWriter().write("vnc.html not found in resources at static/vnc.html");
-                }
-            }
         }
     }
 

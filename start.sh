@@ -2,8 +2,16 @@
 
 set -e
 
+LOCKFILE="/tmp/wormgame.lock"
+if [ -f "$LOCKFILE" ]; then
+    echo "❌ Application is already running!"
+    exit 1
+fi
+touch "$LOCKFILE"
+
 cleanup() {
     echo "Cleaning up..."
+    rm -f "$LOCKFILE"
     kill $XVFB_PID 2>/dev/null || true
     kill $FLUXBOX_PID 2>/dev/null || true
     kill $VNC_PID 2>/dev/null || true

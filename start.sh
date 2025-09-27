@@ -42,8 +42,6 @@ fluxbox &
 FLUXBOX_PID=$!
 
 echo "Starting VNC server..."
-# FIXED: Remove lsof command that's failing, use simpler approach
-# Kill any existing process on port 5900 using native methods
 if command -v ss &> /dev/null; then
     ss -tlnp | grep :5900 | awk '{print $7}' | cut -d= -f2 | cut -d, -f1 | xargs -r kill -9
 elif command -v netstat &> /dev/null; then
@@ -56,18 +54,14 @@ VNC_PID=$!
 sleep 2
 
 echo "Starting Worm Game..."
-# CRITICAL: Add debug output and proper binding
-echo "Starting Java application with 0.0.0.0 binding..."
 java -jar app.jar --server.address=0.0.0.0 --server.port=8080 &
 JAVA_PID=$!
 
 echo "All services started. PID: Xvfb=$XVFB_PID, Fluxbox=$FLUXBOX_PID, VNC=$VNC_PID, Java=$JAVA_PID"
 
-# Wait for Java to start and check if it's running
 echo "Waiting for Java application to start..."
-sleep 10
+sleep 20
 
-# Check if Java process is still running
 if ! ps -p $JAVA_PID > /dev/null; then
     echo "❌ Java application failed to start!"
     echo "Checking Java process status..."
@@ -78,7 +72,6 @@ fi
 echo "✅ Java application started successfully"
 echo "✅ Deployment complete - All services running"
 
-# Wait for the Java process (main application)
 wait $JAVA_PID
 
 

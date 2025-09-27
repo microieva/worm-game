@@ -2,6 +2,8 @@
 
 A classic Snake/Worm game built with Java Swing, featuring a web interface for browser-based control and streaming.
 
+[Play The Game](https://wormgame.mooo.com/)
+
 ## 🎮 Features
 
 - **Classic Gameplay**: Control a worm that grows when eating apples
@@ -142,16 +144,12 @@ docker-compose up
 - **WormGame**: Main game controller extending Timer
 - **UserInterface**: Swing-based GUI wrapper
 - **DrawingBoard**: Custom JPanel for rendering game state
-- **VncStreamServer**: Web server for browser streaming
-- **GameControlServlet**: HTTP endpoints for game control
+- **VncStreamServer**: Web server for browser streaming including servlets:
+  - **GameControlServlet**: HTTP endpoints for game control
+  - **ScreenCaptureServlet**: handles screen capture for streaming
+  - **GameInfoServlet**: providing game connection information
+  - **GameScoreServlet**: handles response withe game score (currently worm length)
 
-### Key Classes
-
-- `Main.java` - Application entry point
-- `WormGame.java` - Core game logic
-- `Worm.java` - Worm behavior and movement
-- `DrawingBoard.java` - Game rendering component
-- `VncStreamServer.java` - Web streaming server
 
 ## 🧪 Testing
 

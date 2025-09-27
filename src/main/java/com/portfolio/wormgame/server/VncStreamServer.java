@@ -39,37 +39,6 @@ public class VncStreamServer {
         System.out.println("✅ Game Streaming Server Started");
     }
 
-    // private void startWebServer() throws Exception {
-    //     webServer = new Server(webPort);
-        
-    //     ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-    //     context.setContextPath("/");
-        
-    //     String staticPath = new java.io.File("src/main/resources/static").getAbsolutePath();
-        
-    //     java.io.File staticDir = new java.io.File("src/main/resources/static");
-        
-    //     context.setResourceBase(staticPath);
-    //     context.setWelcomeFiles(new String[]{"vnc.html"});
-        
-    //     // DefaultServlet 
-    //     ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);
-    //     defaultHolder.setInitParameter("dirAllowed", "false");
-    //     defaultHolder.setInitParameter("gzip", "true");
-    //     defaultHolder.setInitParameter("etags", "true");
-    //     context.addServlet(defaultHolder, "/");
-        
-    //     // API 
-    //     context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
-    //     context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
-    //     context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
-    //     context.addServlet(new ServletHolder(new GameScoreServlet(game)), "/api/score");
-        
-    //     webServer.setHandler(context);
-    //     webServer.start();
-    //     System.out.println("✅ Web server started on port " + webPort);
-    // }
-
     private void startWebServer() throws Exception {
         webServer = new Server(webPort);
         

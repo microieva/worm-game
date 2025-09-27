@@ -48,7 +48,7 @@ VNC_PID=$!
 sleep 2
 
 echo "Starting Worm Game..."
-java -jar app.jar &
+java -jar app.jar --server.address=0.0.0.0 --server.port=8080 &
 JAVA_PID=$!
 
 echo "All services started. PID: Xvfb=$XVFB_PID, Fluxbox=$FLUXBOX_PID, VNC=$VNC_PID, Java=$JAVA_PID"

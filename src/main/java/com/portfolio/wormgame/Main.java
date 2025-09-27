@@ -19,7 +19,7 @@ public class Main {
             startGUI(game);
         }
         
-        startVncServer();
+        startVncServer(game);
         
         keepApplicationAlive();
     }
@@ -49,10 +49,10 @@ public class Main {
         }
     }
     
-    private static void startVncServer() {
+    private static void startVncServer(WormGame game) {
         try {
             if (ui != null) {
-                vncServer = new VncStreamServer(ui, 8080);
+                vncServer = new VncStreamServer(ui, 8080, game);
                 vncServer.start();
             } else {
                 System.out.println("⚠️  GUI not available - VNC server not started");
@@ -81,33 +81,3 @@ public class Main {
         }
     }
 }
-
-
-// package com.portfolio.wormgame;
-
-// import javax.swing.SwingUtilities;
-// import com.portfolio.wormgame.gui.UserInterface;
-// import com.portfolio.wormgame.game.WormGame;
-
-
-// public class Main {
-
-//     public static void main(String[] args) {
-    
-//         WormGame game = new WormGame(20, 20);
-
-//         UserInterface ui = new UserInterface(game, 20);
-//         SwingUtilities.invokeLater(ui);
-
-//         while (ui.getUpdatable() == null) {
-//             try {
-//                 Thread.sleep(100);
-//             } catch (InterruptedException ex) {
-//                 System.out.println("The drawing board hasn't been created yet.");
-//             }
-//         }
-
-//         game.setUpdatable(ui.getUpdatable());
-//         game.start();
-//     }
-// }

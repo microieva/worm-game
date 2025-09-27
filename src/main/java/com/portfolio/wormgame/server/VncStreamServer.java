@@ -3,6 +3,7 @@ package com.portfolio.wormgame.server;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import com.portfolio.wormgame.gui.UserInterface;
 import com.portfolio.wormgame.game.WormGame;
 import com.portfolio.wormgame.Direction;
@@ -24,39 +25,48 @@ public class VncStreamServer {
     private Server webServer;
     private UserInterface ui;
     private int webPort;
+    private WormGame game;
 
-    public VncStreamServer(UserInterface ui, int webPort) {
+    public VncStreamServer(UserInterface ui, int webPort, WormGame game) {
         this.ui = ui;
         this.webPort = webPort;
+        this.game = game;
     }
 
     public void start() throws Exception {
-        startWebServer();
-        
+        startWebServer();    
         System.out.println("✅ Game Streaming Server Started");
-        System.out.println("🌐 Open: http://localhost:" + webPort + "/vnc.html");
-        System.out.println("📺 Game streaming available on port: " + webPort);
     }
 
     private void startWebServer() throws Exception {
         webServer = new Server(webPort);
         
-        ServletContextHandler context = new ServletContextHandler();
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
         
-        // 1. Root redirect (exact path)
-        context.addServlet(new ServletHolder(new RootRedirectServlet()), "/");
+        String staticPath = new java.io.File("src/main/resources/static").getAbsolutePath();
         
-        // 2. API endpoints (specific patterns)
+        java.io.File staticDir = new java.io.File("src/main/resources/static");
+        
+        context.setResourceBase(staticPath);
+        context.setWelcomeFiles(new String[]{"vnc.html"});
+        
+        // DefaultServlet 
+        ServletHolder defaultHolder = new ServletHolder("default", DefaultServlet.class);
+        defaultHolder.setInitParameter("dirAllowed", "false");
+        defaultHolder.setInitParameter("gzip", "true");
+        defaultHolder.setInitParameter("etags", "true");
+        context.addServlet(defaultHolder, "/");
+        
+        // API 
         context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
         context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
         context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
-        
-        // 3. Static resources
-        context.addServlet(new ServletHolder(new StaticResourceServlet()), "/*");
+        context.addServlet(new ServletHolder(new GameScoreServlet(game)), "/api/score");
         
         webServer.setHandler(context);
         webServer.start();
+        System.out.println("✅ Web server started on port " + webPort);
     }
 
     public void stop() throws Exception {
@@ -65,38 +75,28 @@ public class VncStreamServer {
         }
     }
 
-    public static class StaticResourceServlet extends HttpServlet {
-        @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-                throws ServletException, IOException {
-            String path = req.getPathInfo();
-            if (path == null) path = "";
+    // Servlet for score (currently worm length)
+    public class GameScoreServlet extends HttpServlet {
+        private final WormGame game;
 
-            String contentType = "text/plain";
-            if (path.endsWith(".html")) contentType = "text/html";
-            if (path.endsWith(".css")) contentType = "text/css";
-            if (path.endsWith(".js")) contentType = "application/javascript";
-            if (path.endsWith(".png")) contentType = "image/png";
-            if (path.endsWith(".jpg") || path.endsWith(".jpeg")) contentType = "image/jpeg";
-            
-            try (InputStream is = getClass().getClassLoader().getResourceAsStream("static" + path)) {
-                if (is != null) {
-                    resp.setContentType(contentType);
-                    resp.getOutputStream().write(is.readAllBytes());
-                } else {
-                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                    resp.getWriter().write("Resource not found: " + path);
-                }
-            }
+        public GameScoreServlet(WormGame game) {
+            this.game = game;
         }
-    }
-
-    // Servlet to redirect root to vnc.html
-    public static class RootRedirectServlet extends HttpServlet {
+        
         @Override
-        protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-                throws ServletException, IOException {
-            resp.sendRedirect("/vnc.html");
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+                throws IOException {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+            
+            int score = 0;
+            
+            if (game != null && game.getWorm() != null && game.getWorm().getLength() > 3) {
+                score = game.getWorm().getLength() - 3;
+            }
+            
+            String jsonResponse = String.format("{\"score\": %d}", score);
+            response.getWriter().write(jsonResponse);
         }
     }
 
@@ -160,7 +160,7 @@ public class VncStreamServer {
       }
       
       @Override
-      protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) 
               throws ServletException, IOException {
           try {
               String action = req.getParameter("action");
@@ -175,7 +175,6 @@ public class VncStreamServer {
                   case "start":
                       ui.getWormGame().start();
                       resp.getWriter().println("{\"status\":\"success\", \"message\":\"Game started\"}");
-                      System.out.println("🎮 Game started from browser");
                       break;
                       
                   case "pause":
@@ -183,20 +182,17 @@ public class VncStreamServer {
                           ((Timer) ui.getWormGame()).stop();
                       }
                       resp.getWriter().println("{\"status\":\"success\", \"message\":\"Game paused\"}");
-                      System.out.println("🎮 Game paused from browser");
                       break;
                       
                   case "restart":
                       ui.stopAndCreateNewGame();
                       resp.getWriter().println("{\"status\":\"success\", \"message\":\"Game stopped and reset\"}");
-                      System.out.println("🛑 Game stopped and reset from browser");
                       break;
 
                   case "up":
                     if (ui.getWormGame() != null) {
                         ui.getWormGame().getWorm().setDirection(Direction.UP);
                         resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going up\"}");
-                        System.out.println("⬆️ Going up");
                     }
                     break;
                     
@@ -204,7 +200,6 @@ public class VncStreamServer {
                       if (ui.getWormGame() != null) {
                           ui.getWormGame().getWorm().setDirection(Direction.DOWN);
                           resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going down\"}");
-                          System.out.println("⬇️ Going down");
                       }
                       break;
                       
@@ -212,7 +207,6 @@ public class VncStreamServer {
                       if (ui.getWormGame() != null) {
                           ui.getWormGame().getWorm().setDirection(Direction.LEFT);
                           resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going left\"}");
-                          System.out.println("⬅️ Going left");
                       }
                       break;
                       
@@ -220,7 +214,6 @@ public class VncStreamServer {
                     if (ui.getWormGame() != null) {
                         ui.getWormGame().getWorm().setDirection(Direction.RIGHT);
                         resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going right\"}");
-                        System.out.println("➡️ Going right");
                     }
                     break;
                       

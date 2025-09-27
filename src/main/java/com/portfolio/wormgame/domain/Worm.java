@@ -12,24 +12,12 @@ public class Worm {
     private int originalY;
     private boolean grow;
     
-    /*private Piece head;
-    private Piece tail;
-    private Piece body;*/
-    
     public Worm (int originalX, int originalY, Direction originalDirection) {
         this.originalX = originalX;
         this.originalY = originalY;
         this.originalDirection = originalDirection;
         this.worm.add(0, new Piece(this.originalX, this.originalY));
         this.grow = false;
-        
-        /*this.tail = this.worm.get(0);
-        this.head = this.worm.get(this.worm.size()-1);
-        for (int i=0; i<this.worm.size()-1; i++) {
-            if (!this.worm.get(i).equals(this.head) && !this.worm.get(i).equals(this.tail)) {
-                this.body = this.worm.get(i);
-            }
-        }*/
     }
     
     public Direction getDirection() {
@@ -45,7 +33,7 @@ public class Worm {
         this.originalDirection = newDirection;
     }
     
-    public void move() { // GitHub
+    public void move() { 
         if (this.originalDirection == Direction.UP) {
             worm.add(new Piece(this.originalX, this.originalY-1));
             this.originalY = this.originalY -1;

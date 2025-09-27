@@ -83,8 +83,7 @@ public class UserInterface implements Runnable {
             
             newGame.setUpdatable(this.db);
             this.game = newGame;
-            
-            System.out.println("🔄 Game stopped and new game instance created");
+            this.db.setIsRunning(false);
         }
     }
 

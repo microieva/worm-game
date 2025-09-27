@@ -3,6 +3,8 @@ package com.portfolio.wormgame.game;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 import javax.swing.Timer;
 
 import com.portfolio.wormgame.Direction;
@@ -11,6 +13,8 @@ import com.portfolio.wormgame.domain.Apple;
 import com.portfolio.wormgame.domain.Orange;
 import com.portfolio.wormgame.domain.Mushroom;
 import com.portfolio.wormgame.gui.Updatable;
+import com.portfolio.wormgame.domain.FruitType; 
+import com.portfolio.wormgame.domain.Piece;
 
 public class WormGame extends Timer implements ActionListener {
 
@@ -26,6 +30,12 @@ public class WormGame extends Timer implements ActionListener {
     private Apple apple;
     private Orange orange;
     private Mushroom mushroom;
+    private boolean isMovingBackwards = false;
+    private Random random = new Random();
+    private boolean hasSpawnedFirstFruit = false;
+    private int spawnInterval = 1000;
+    private long lastSpawnTime = 0;
+    private FruitType fruitType;
     
     public WormGame(int width, int height) {
         super(1000, null);
@@ -35,12 +45,14 @@ public class WormGame extends Timer implements ActionListener {
         this.height = height;
         this.continues = true;
         this.worm = new Worm(this.width/2, this.height/2, Direction.DOWN);
-        this.x = new Random().nextInt(this.width);
-        this.y = new Random().nextInt(this.height);
+
+        spawnFruit();
+        // this.x = new Random().nextInt(this.width);
+        // this.y = new Random().nextInt(this.height);
         
-        this.apple = new Apple(this.x, this.y);
-        this.orange = new Orange(this.x, this.y);
-        this.mushroom = new Mushroom(this.x, this.y);
+        // this.apple = new Apple(this.x, this.y);
+        // this.orange = new Orange(this.x, this.y);
+        // this.mushroom = new Mushroom(this.x, this.y);
 
         addActionListener(this);
         setInitialDelay(2000);
@@ -69,13 +81,12 @@ public class WormGame extends Timer implements ActionListener {
         }
         this.worm.move();
         
-        if (this.worm.runsInto(this.apple)) {
+        if (this.apple != null && this.worm.runsInto(this.apple)) {
             appleEffect();
-        } else if (this.worm.runsInto(this.orange)) {
+        } else if (this.orange != null && this.worm.runsInto(this.orange)) {
             orangeEffect(); 
-        } else if (this.worm.runsInto(this.mushroom)) {
+        } else if (this.mushroom != null && this.worm.runsInto(this.mushroom)) {
             mushroomEffect();
-            
         } else if (this.worm.runsIntoItself()) {
             this.continues = false;
         // GAME WALLS:
@@ -93,24 +104,104 @@ public class WormGame extends Timer implements ActionListener {
     
     public void appleEffect() {
         this.appleCounter++;
+        this.hasSpawnedFirstFruit = true;
         this.worm.grow();
-        this.apple = new Apple(new Random().nextInt(this.width), new Random().nextInt(this.height));         
+        spawnFruit();        
     }
     
     public void orangeEffect() {
         if (this.worm.getLength() > 3) {
             this.worm.shrink();     
         }
-        this.orange = new Orange(new Random().nextInt(this.width), new Random().nextInt(this.height));
-        
+        spawnFruit();     
+    }
+    public boolean isMovingBackwards() {
+        return this.isMovingBackwards;
     }
     
     public void mushroomEffect() {
         if (this.worm.getLength() > 3) {
-            this.worm.goBackwards();    
+            this.worm.goBackwards(); 
+            this.isMovingBackwards = true;   
         }
-        this.mushroom = new Mushroom(new Random().nextInt(this.width), new Random().nextInt(this.height));
+        spawnFruit(); 
+    }
+
+    private void spawnFruit() {
+        this.fruitType = determineFruitType();
+        spawnFruitByType();
+    }
+
+
+    private FruitType determineFruitType() {
+        if (!this.hasSpawnedFirstFruit) {
+            this.hasSpawnedFirstFruit = true;
+            return FruitType.APPLE;
+        }
+        return getRandomFruitType();
+    }
+
+    private FruitType getRandomFruitType() {
+        List<FruitType> availableFruits = new ArrayList<>();
         
+        availableFruits.add(FruitType.APPLE);
+        availableFruits.add(FruitType.MUSHROOM);
+        if (this.worm.getLength() > 3) {
+            availableFruits.add(FruitType.ORANGE);
+        }
+        
+        return availableFruits.get(random.nextInt(availableFruits.size()));
+    }
+
+    private void spawnFruitByType() {
+        int x, y;
+        do {
+            x = random.nextInt(this.width);
+            y = random.nextInt(this.height);
+        } while (isPositionOccupied(x, y));
+        
+        switch (this.fruitType) {
+            case APPLE:
+                this.apple = new Apple(x, y);
+                this.orange = null;
+                this.mushroom = null;
+                break;
+            case ORANGE:
+                this.orange = new Orange(x, y);
+                this.apple = null;
+                this.mushroom = null;
+                break;
+            case MUSHROOM:
+                this.mushroom = new Mushroom(x, y);
+                this.apple = null;
+                this.orange = null; 
+                break;
+        }
+    }
+
+    // private boolean isPositionOccupiedByWorm(int x, int y) {
+    //     if (this.worm == null) return false;
+    //     return this.worm.runsInto(new Piece(x, y));
+    // }
+
+    private boolean isPositionOccupied(int x, int y) {
+        if (this.worm == null) return false;
+        
+        if (this.worm.runsInto(new Piece(x, y))) {
+            return true;
+        }
+        
+        if (this.apple != null && this.apple.getX() == x && this.apple.getY() == y) {
+            return true;
+        }
+        if (this.orange != null && this.orange.getX() == x && this.orange.getY() == y) {
+            return true;
+        }
+        if (this.mushroom != null && this.mushroom.getX() == x && this.mushroom.getY() == y) {
+            return true;
+        }
+        
+        return false;
     }
     
     public Worm getWorm() {

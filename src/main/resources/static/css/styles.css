@@ -68,3 +68,17 @@ button { padding: 15px 30px; margin: 10px; background: #3498db; color: white; bo
     .game-controls {display:none;}
     .game-controls-mobile {display:block;}
 }
+
+.header {
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    gap:3rem;
+    margin-top: 20px; 
+    padding: 10px; 
+    background: #34495e; 
+    border-radius: 5px;
+}
+#gameStatus {
+    color: skyblue;
+}

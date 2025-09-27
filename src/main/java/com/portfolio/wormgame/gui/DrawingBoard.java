@@ -5,11 +5,14 @@ import com.portfolio.wormgame.game.WormGame;
 import com.portfolio.wormgame.domain.Piece;
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
+import javax.swing.Timer;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
 import java.net.URL;
+import java.util.List;
+
 
 public class DrawingBoard extends JPanel implements Updatable {
     
@@ -18,39 +21,54 @@ public class DrawingBoard extends JPanel implements Updatable {
     private Image scaledAppleIcon;
     private Image scaledOrangeIcon;
     private Image scaledMushroomIcon;
+    private Image scaledHeadIcon;
+    private Image scaledTailIcon;
+    private Image scaledBodyIcon; 
+    
+    private static final Color WORM_COLOR = Color.decode("#1dbf44");
+    private boolean isRunning = false;
+
     
     public DrawingBoard(WormGame game, int pieceLength) {
         super.setBackground(Color.GRAY);
         this.game = game;
         this.pieceLength = pieceLength;
-        
         loadIcons();
+        checkIsRunning();
     }
     
     private void loadIcons() {
         scaledAppleIcon = loadFruitImage("apple");
         scaledOrangeIcon = loadFruitImage("orange"); 
         scaledMushroomIcon = loadFruitImage("mushroom");
-        
-        if (scaledAppleIcon == null) {
-            System.err.println("Failed to load apple icon");
-        }
-        if (scaledOrangeIcon == null) {
-            System.err.println("Failed to load orange icon");
-        }
-        if (scaledMushroomIcon == null) {
-            System.err.println("Failed to load mushroom icon");
+
+        scaledHeadIcon = loadWormSegment("snake-head");
+        scaledTailIcon = loadWormSegment("snake-tail");    
+    }
+
+    private void checkIsRunning() {
+        if (this.game instanceof Timer) {
+            Timer timer = (Timer) this.game;
+            this.isRunning = timer.isRunning();
         }
     }
     
     private Image loadFruitImage(String fruitName) {
         String imageName = fruitName.toLowerCase() + ".jpg";
         String resourcePath = "static/icons/" + imageName;
-        
+        return loadImage(resourcePath, fruitName);
+    }
+    
+    private Image loadWormSegment(String segmentName) {
+        String imageName = segmentName.toLowerCase() + ".png";
+        String resourcePath = "static/icons/" + imageName;
+        return loadImage(resourcePath, segmentName);
+    }
+    
+    private Image loadImage(String resourcePath, String imageType) {    
         try {
             URL imageUrl = getClass().getClassLoader().getResource(resourcePath);
             if (imageUrl != null) {
-                System.out.println("✓ Successfully loaded from classpath: " + imageUrl);
                 ImageIcon icon = new ImageIcon(imageUrl);
                 return scaleImage(icon.getImage(), pieceLength, pieceLength);
             } else {
@@ -61,7 +79,7 @@ public class DrawingBoard extends JPanel implements Updatable {
             String filePath = "src/main/resources/" + resourcePath;
             java.io.File file = new java.io.File(filePath);
             if (file.exists()) {
-                System.out.println("✓ Successfully loaded from filesystem: " + file.getAbsolutePath());
+                System.out.println("✓ Successfully loaded " + imageType + " from filesystem: " + file.getAbsolutePath());
                 ImageIcon icon = new ImageIcon(filePath);
                 return scaleImage(icon.getImage(), pieceLength, pieceLength);
             } else {
@@ -69,66 +87,109 @@ public class DrawingBoard extends JPanel implements Updatable {
             }
             
         } catch (Exception e) {
-            System.err.println("Error loading icon " + fruitName + ": " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error loading " + imageType + " icon: " + e.getMessage());
         }
         
-        System.out.println("⚠️ Creating placeholder for: " + fruitName);
-        return createPlaceholderIcon(fruitName);
-    }
-    
-    private Image createPlaceholderIcon(String fruitName) {
-        BufferedImage placeholder = new BufferedImage(pieceLength, pieceLength, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = placeholder.createGraphics();
-        
-        switch (fruitName.toLowerCase()) {
-            case "apple":
-                g2d.setColor(Color.RED);
-                break;
-            case "orange":
-                g2d.setColor(Color.ORANGE);
-                break;
-            case "mushroom":
-                g2d.setColor(Color.WHITE);
-                break;
-            default:
-                g2d.setColor(Color.MAGENTA);
-        }
-        
-        g2d.fillRect(0, 0, pieceLength, pieceLength);
-        g2d.setColor(Color.BLACK);
-        g2d.drawRect(0, 0, pieceLength - 1, pieceLength - 1);
-        g2d.dispose();
-        
-        return placeholder;
+        return null;
     }
     
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        if (scaledAppleIcon != null && game.getApple() != null) {
-            g.drawImage(scaledAppleIcon, game.getApple().getX() * pieceLength, 
-                       game.getApple().getY() * pieceLength, this);
+        drawFruit(g, scaledAppleIcon, game.getApple());
+        drawFruit(g, scaledMushroomIcon, game.getMushroom());
+        drawFruit(g, scaledOrangeIcon, game.getOrange());
+        if (this.isRunning) {
+            drawWormWithDirection(g);
+        }
+    }
+    
+    private void drawFruit(Graphics g, Image fruitIcon, Piece fruit) {
+        if (fruitIcon != null && fruit != null) {
+            g.drawImage(fruitIcon, fruit.getX() * pieceLength, 
+                       fruit.getY() * pieceLength, this);
+        }
+    }
+
+    private void drawWormWithDirection(Graphics g) {
+        if (game.getWorm() == null || game.getWorm().getPieces().isEmpty()) {
+            return;
         }
         
-        if (scaledOrangeIcon != null && game.getOrange() != null) {
-            g.drawImage(scaledOrangeIcon, game.getOrange().getX() * pieceLength, 
-                       game.getOrange().getY() * pieceLength, this);
-        }
+        List<Piece> pieces = game.getWorm().getPieces();
+        int size = pieces.size();
         
-        if (scaledMushroomIcon != null && game.getMushroom() != null) {
-            g.drawImage(scaledMushroomIcon, game.getMushroom().getX() * pieceLength, 
-                       game.getMushroom().getY() * pieceLength, this);
-        }
-         
-        g.setColor(Color.BLACK);
-        if (game.getWorm() != null) {
-            for (Piece piece : game.getWorm().getPieces()) {
-                g.fill3DRect(piece.getX() * pieceLength, piece.getY() * pieceLength, 
-                           pieceLength, pieceLength, true);    
+        for (int i = size - 1; i >= 0; i--) {
+            Piece piece = pieces.get(i);
+            int x = piece.getX() * pieceLength;
+            int y = piece.getY() * pieceLength;
+            Image imageToDraw = null;
+            double rotation = 0;
+            
+
+            if (i == 0  && scaledTailIcon != null) {
+                imageToDraw = scaledTailIcon;
+                rotation = calculateStartRotation(pieces, i) + Math.PI; 
+            } else if (i == size - 1 && scaledHeadIcon != null) {
+                imageToDraw = scaledHeadIcon;
+                rotation = calculateEndRotation(pieces, i) + Math.PI; 
+            } else if (scaledBodyIcon != null) {
+                imageToDraw = scaledBodyIcon;
+            }
+            
+            if (imageToDraw != null) {
+                if (rotation != 0) {
+                    drawRotatedImage((Graphics2D) g, imageToDraw, x, y, rotation);
+                } else {
+                    g.drawImage(imageToDraw, x, y, this);
+                }
+            } else {
+                g.setColor(WORM_COLOR);
+                g.fillRect(x, y, pieceLength, pieceLength);
             }
         }
+    }
+
+    private double calculateStartRotation(List<Piece> pieces, int headIndex) {
+        if (pieces.size() > 1) {
+            Piece head = pieces.get(headIndex);
+            Piece next = pieces.get(headIndex + 1);
+            
+            int dx = head.getX() - next.getX();
+            int dy = head.getY() - next.getY();
+            
+            if (dx == 1) return Math.PI;       // Facing left
+            if (dx == -1) return 0;            // Facing right  
+            if (dy == 1) return -Math.PI / 2;  // Facing up
+            if (dy == -1) return Math.PI / 2;  // Facing down
+        }
+        return 0; 
+    }
+    
+    private double calculateEndRotation(List<Piece> pieces, int tailIndex) {
+        if (tailIndex > 0) {
+            Piece tail = pieces.get(tailIndex);
+            Piece prev = pieces.get(tailIndex - 1);
+            
+            int dx = tail.getX() - prev.getX();
+            int dy = tail.getY() - prev.getY();
+            
+            if (dx == 1) return 0;             // Coming from left
+            if (dx == -1) return Math.PI;      // Coming from right
+            if (dy == 1) return Math.PI / 2;   // Coming from above
+            if (dy == -1) return -Math.PI / 2; // Coming from below
+        }
+        return 0;
+    }
+
+    
+    private void drawRotatedImage(Graphics2D g2d, Image image, int x, int y, double radians) {
+        g2d.translate(x + pieceLength / 2, y + pieceLength / 2);
+        g2d.rotate(radians);
+        g2d.drawImage(image, -pieceLength / 2, -pieceLength / 2, pieceLength, pieceLength, null);
+        g2d.rotate(-radians);
+        g2d.translate(-x - pieceLength / 2, -y - pieceLength / 2);
     }
     
     private Image scaleImage(Image image, int width, int height) {
@@ -136,6 +197,7 @@ public class DrawingBoard extends JPanel implements Updatable {
     }
     
     public void update() {
+        checkIsRunning(); 
         repaint();
     }
 
@@ -154,78 +216,9 @@ public class DrawingBoard extends JPanel implements Updatable {
     public void setGame(WormGame newGame) {
         this.game = newGame;
     }
+
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
+    }
 }
 
-
-// package com.portfolio.wormgame.gui;
-
-// import java.awt.Color;
-// import com.portfolio.wormgame.game.WormGame;
-// import com.portfolio.wormgame.domain.Piece;
-// import javax.swing.JPanel;
-// import javax.swing.ImageIcon;
-// import java.awt.Graphics;
-// import java.awt.Image;
-// import java.awt.image.BufferedImage;
-// import java.awt.Graphics2D;
-
-// public class DrawingBoard extends JPanel implements Updatable {
-    
-//     private WormGame game;
-//     private int pieceLength;
-    
-//     public DrawingBoard(WormGame game, int pieceLength) {
-//         super.setBackground(Color.GRAY);
-//         this.game = game;
-//         this.pieceLength = pieceLength;
-//     }
-    
-//     protected void paintComponent(Graphics g) {
-//         super.paintComponent(g);
-//         // APPLE:
-//         ImageIcon appleIcon = new ImageIcon("src/main/resources/static/icons/apple.jpg");
-//         Image scaledAppleIcon = scaleImage(appleIcon.getImage(), pieceLength, pieceLength);
-//         ImageIcon apple = new ImageIcon(scaledAppleIcon);
-//         apple.paintIcon(this, g, game.getApple().getX()*pieceLength, game.getApple().getY()*pieceLength);
-//         // ORANGE:
-//         ImageIcon orangeIcon = new ImageIcon("src/main/resources/static/icons/orange.jpg");
-//         Image scaledOrangeIcon = scaleImage(orangeIcon.getImage(), pieceLength, pieceLength);
-//         ImageIcon orange = new ImageIcon(scaledOrangeIcon);
-//         orange.paintIcon(this, g, game.getOrange().getX()*pieceLength, game.getOrange().getY()*pieceLength);
-//         // MUSHROOM:
-//         ImageIcon mushroomIcon = new ImageIcon("src/main/resources/static/icons/mushroom.jpg");
-//         Image scaledMushroomIcon = scaleImage(mushroomIcon.getImage(), pieceLength, pieceLength);
-//         ImageIcon mushroom = new ImageIcon(scaledMushroomIcon);
-//         mushroom.paintIcon(this, g, game.getMushroom().getX()*pieceLength, game.getMushroom().getY()*pieceLength);
-         
-//         // WORM :
-//         g.setColor(Color.BLACK);
-//         for (Piece piece: game.getWorm().getPieces()) {
-//             g.fill3DRect(piece.getX()*pieceLength, piece.getY()*pieceLength, pieceLength, pieceLength, true);    
-//         }     
-//     }
-    
-//     private Image scaleImage(Image image, int width, int height) {
-//         return image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-//     }
-    
-//     public void update() {
-//         repaint();
-//     }
-
-//    public BufferedImage captureScreenshot() {
-//         if (getWidth() <= 0 || getHeight() <= 0) {
-//             return null;
-//         }
-        
-//         BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
-//         Graphics2D g2d = image.createGraphics();
-//         paintAll(g2d);
-//         g2d.dispose();
-//         return image;
-//     }
-
-//     public void setGame(WormGame newGame) {
-//         this.game = newGame;
-//     }
-// }

@@ -1,4 +1,5 @@
 let streamInterval = null;
+let scoreInterval = null;
 let lastMoveTime = 0;
 const MOVE_COOLDOWN = 100; 
 let isGameRunning = false;
@@ -50,6 +51,7 @@ async function startGame() {
             updateStatus('Game started successfully!');
             updateGameStatus('Running');
             startStream();
+            startScoreUpdates();
         } else {
             updateStatus('Error: ' + result.message);
             updateGameStatus('Error');
@@ -59,6 +61,29 @@ async function startGame() {
         updateStatus('Failed to start game: ' + error.message);
         updateGameStatus('Error');
         isGameRunning = false;
+    }
+}
+
+function startScoreUpdates() {
+    fetchScore();
+    scoreInterval = setInterval(fetchScore, 1000);
+}
+
+async function fetchScore() {
+    try {
+        const response = await fetch('/api/score');
+        const data = await response.json();
+        console.log('RESP SCORE: ', data)
+        updateGameScore((data.score).toString());
+    } catch (error) {
+        console.error('Failed to fetch score:', error);
+    }
+}
+
+function stopScoreUpdates() {
+    if (scoreInterval) {
+        clearInterval(scoreInterval);
+        scoreInterval = null;
     }
 }
 
@@ -76,6 +101,7 @@ async function pauseGame() {
             isGameRunning = false;
             updateStatus('Game paused');
             updateGameStatus('Paused');
+            stopScoreUpdates();
         } else {
             updateStatus('Error: ' + result.message);
         }
@@ -85,6 +111,11 @@ async function pauseGame() {
 }
 
 async function stopGame() {
+    stopScoreUpdates();
+    const gameScoreElement = document.getElementById('gameScore');
+    if (gameScoreElement) {
+        gameScoreElement.textContent = 'Game score: 0';
+    }
     try {
         updateStatus('Stopping & restarting game...');
         
@@ -146,6 +177,13 @@ function updateGameStatus(message) {
     const gameStatusElement = document.getElementById('gameStatus');
     if (gameStatusElement) {
         gameStatusElement.textContent = 'Game status: ' + message;
+    }
+}
+
+function updateGameScore(message) {
+    const gameScoreElement = document.getElementById('gameScore');
+    if (gameScoreElement) {
+        gameScoreElement.textContent = 'Game score: ' + message;
     }
 }
 

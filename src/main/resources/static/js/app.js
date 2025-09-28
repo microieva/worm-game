@@ -3,12 +3,12 @@ let scoreInterval = null;
 let lastMoveTime = 0;
 const MOVE_COOLDOWN = 100; 
 let isGameRunning = false;
+const info = document.getElementById('info');
 
 function startStream() {
     const img = document.getElementById('gameStream');
     if (!img) return;
     
-    img.style.display = 'block';
     updateStatus('Streaming game...');
 
     if (streamInterval) {
@@ -36,6 +36,7 @@ function stopStream() {
 }
 
 async function startGame() {
+    info.style.display = 'block';
     try {
         updateStatus('Starting game...');
         updateGameStatus('Starting...');
@@ -47,11 +48,12 @@ async function startGame() {
         const result = await response.json();
         
         if (result.status === 'success') {
-            isGameRunning = true;
             updateStatus('Game started successfully!');
             updateGameStatus('Running');
             startStream();
             startScoreUpdates();
+            isGameRunning = true;
+            setTimeout(() => {info.style.display = 'none'}, 2000);
         } else {
             updateStatus('Error: ' + result.message);
             updateGameStatus('Error');

@@ -26,12 +26,13 @@
                 <button onclick="pauseGame()" class="control-btn pause">PAUSE</button>
                 <button onclick="stopGame()" class="control-btn stop">STOP</button>
             </div>  
-            <img id="gameStream" style="display:none;">   
+            <img id="gameStream" style="display:none;"> 
+            <div id="info"><h3>Starting!..</h3></div>  
             <div class="arrow-controls">
-                <button onclick="move('up')" class="arrow-btn">↑</button>
-                <button onclick="move('left')" class="arrow-btn">←</button>
-                <button onclick="move('down')" class="arrow-btn">↓</button>
-                <button onclick="move('right')" class="arrow-btn">→</button>
+                <button onclick="move('up')" class="arrow-btn"><img src="./icons/arrow.png"/></button>
+                <button onclick="move('left')" class="arrow-btn"><img src="./icons/arrow.png" style="rotate: 270deg;"/></button>
+                <button onclick="move('down')" class="arrow-btn"><img src="./icons/arrow.png" style="rotate: 180deg;"/></button>
+                <button onclick="move('right')" class="arrow-btn"><img src="./icons/arrow.png" style="rotate: 90deg;"/></button>
             </div> 
         </div>
     </div>

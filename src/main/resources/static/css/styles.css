@@ -1,22 +1,45 @@
 
-body { font-family: Arial; background: #2c3e50; color: white; max-height:100vh;}
-.container { margin: 0 auto; text-align: center; }
-.content-wrapper {width:100%; display:flex; flex-direction: column; gap: 15px;}
-button { padding: 15px 30px; margin: 10px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
+body { 
+    font-family: Arial; 
+    background: #2c3e50; 
+    color: white; 
+    max-height:100vh;
+}
+.container { 
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+}
+.content-wrapper {    
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    height: 80vh
+}
+#info {
+    display: none;
+    position: absolute;
+    border: 2px solid white;
+    padding: 2vh 10vw;
+    background-color: slategray;
+    top: 50%;
+}
+button { padding: 0.5rem 1rem; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer; }
 #gameStream { border: 3px solid #3498db; margin: auto; background: black; width: 36rem; height:36rem;}
-.game-controls { margin:auto; align-self: center; }
+.game-controls { margin:auto; align-self: center; flex-direction: row; justify-content: center; gap:1rem; margin-bottom: 2vh;}
 .control-btn { background: #27ae60; }
 .control-btn.pause { background: #8e8882; }
 .control-btn.stop { background: #e74c3c; }
-.game-controls-mobile{display:none;}
 .game-controls{display:flex;}
+.game-controls-mobile{display:none; margin-bottom: 2vh;}
 
 .arrow-controls {
     display: none;
     grid-template-columns: repeat(3, 1fr); 
     grid-template-rows: repeat(3, 1fr);   
     gap: 10px;
-    margin: 20px auto;
 }
 
 .arrow-btn {
@@ -74,10 +97,10 @@ button { padding: 15px 30px; margin: 10px; background: #3498db; color: white; bo
     flex-direction: row;
     justify-content: center;
     gap:3rem;
-    margin-top: 20px; 
     padding: 10px; 
     background: #34495e; 
     border-radius: 5px;
+    margin-bottom:1rem;
 }
 #gameStatus {
     color: skyblue;

@@ -145,8 +145,7 @@ async function stopGame() {
     updateButtonStates(false);
     
     try {
-        updateStatus('Stopping & restarting game...');
-        
+        updateStatus('Stopping & restarting game...');    
         const response = await fetch('/api/control?action=restart', {
             method: 'POST'
         });
@@ -156,7 +155,7 @@ async function stopGame() {
         if (result.status === 'success') {
             isGameRunning = true;
             updateStatus('Game stopped & restarted');
-            updateGameStatus('Restarted');
+            updateGameStatus('Ready');
             startStream();
             if (info) {
                 info.style.display = 'none';

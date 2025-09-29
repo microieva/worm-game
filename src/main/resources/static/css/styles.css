@@ -6,9 +6,10 @@ body {
     max-height:100vh;
 }
 .container { 
+    height:90vh;
     display: flex;
     flex-direction: column;
-    gap: 5vh;
+    justify-content: space-between;
 }
 .content-wrapper {    
     width: 100%;

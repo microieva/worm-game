@@ -3,6 +3,7 @@ let scoreInterval = null;
 let lastMoveTime = 0;
 const MOVE_COOLDOWN = 100; 
 let isGameRunning = false;
+let isDisabled = false;
 const info = document.getElementById('info');
 
 function startStream() {
@@ -36,10 +37,10 @@ function stopStream() {
 }
 
 async function startGame() {
-    info.style.display = 'block';
     try {
-        updateStatus('Starting game...');
-        updateGameStatus('Starting...');
+        displayInfo('Starting game..');
+        updateStatus('Starting game..');
+        updateGameStatus('Starting..');
         
         const response = await fetch('/api/control?action=start', {
             method: 'POST'
@@ -75,10 +76,35 @@ async function fetchScore() {
     try {
         const response = await fetch('/api/score');
         const data = await response.json();
-        console.log('RESP SCORE: ', data)
-        updateGameScore((data.score).toString());
+        const score = data.score;
+        const status = data.status;
+        if (status === 'game_over') {
+            gameOver();
+        } 
+        updateGameScore((score).toString());
     } catch (error) {
         console.error('Failed to fetch score:', error);
+    }
+}
+
+function gameOver() {
+    isGameRunning = false;
+    updateButtonStates(true);
+    updateStatus('Game Over!');
+    updateGameStatus('Game Over');
+    displayInfo('On no! Game over..');    
+    stopScoreUpdates();
+}
+
+function displayInfo(message) {
+    if (info) {
+        const h3Element = info.querySelector('h3');
+        if (h3Element) {
+            h3Element.textContent = message;
+        } else {
+            info.innerHTML = '<h3>' + message + '</h3>';
+        }
+        info.style.display = 'block';
     }
 }
 
@@ -104,6 +130,7 @@ async function pauseGame() {
             updateStatus('Game paused');
             updateGameStatus('Paused');
             stopScoreUpdates();
+            displayInfo('Game paused');
         } else {
             updateStatus('Error: ' + result.message);
         }
@@ -114,10 +141,9 @@ async function pauseGame() {
 
 async function stopGame() {
     stopScoreUpdates();
-    const gameScoreElement = document.getElementById('gameScore');
-    if (gameScoreElement) {
-        gameScoreElement.textContent = 'Game score: 0';
-    }
+    updateGameScore('0');
+    updateButtonStates(false);
+    
     try {
         updateStatus('Stopping & restarting game...');
         
@@ -132,6 +158,9 @@ async function stopGame() {
             updateStatus('Game stopped & restarted');
             updateGameStatus('Restarted');
             startStream();
+            if (info) {
+                info.style.display = 'none';
+            }
         } else {
             updateStatus('Error: ' + result.message);
             isGameRunning = false;
@@ -143,9 +172,14 @@ async function stopGame() {
 }
 
 async function move(direction) {
+    if (!isGameRunning) {
+        updateStatus('Game is not running');
+        return;
+    }
+    
     const now = Date.now();
     if (now - lastMoveTime < MOVE_COOLDOWN) {
-        return; // Too soon since last move
+        return; 
     }
     lastMoveTime = now;
     
@@ -189,7 +223,27 @@ function updateGameScore(message) {
     }
 }
 
+function updateButtonStates(isDisabled) {
+    const buttons = document.querySelectorAll('.start, .pause');
+    
+    if (isDisabled === true) {
+        buttons.forEach(button => {
+            button.disabled = isDisabled;
+            button.style.opacity = 0.6;
+            button.style.cursor = 'default';
+        });
+    } else {
+        buttons.forEach(button => {
+            button.disabled = isDisabled;
+            button.style.opacity = 1;
+            button.style.cursor = 'pointer';
+        });
+    }
+}
+
 document.addEventListener('keydown', (event) => {
+    if (!isGameRunning) return;
+    
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         event.preventDefault();
         

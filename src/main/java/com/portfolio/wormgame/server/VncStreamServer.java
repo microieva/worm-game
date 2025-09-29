@@ -68,7 +68,7 @@ public class VncStreamServer {
         context.addServlet(new ServletHolder(new ScreenCaptureServlet(ui)), "/screen");
         context.addServlet(new ServletHolder(new GameInfoServlet()), "/api/game-info");
         context.addServlet(new ServletHolder(new GameControlServlet(ui)), "/api/control");
-        context.addServlet(new ServletHolder(new GameScoreServlet(game)), "/api/score");
+        context.addServlet(new ServletHolder(new GameScoreServlet(game, ui)), "/api/score");
         
         webServer.setHandler(context);
         webServer.start();
@@ -83,10 +83,12 @@ public class VncStreamServer {
 
     // Servlet for score and game status (currently worm length)
     public class GameScoreServlet extends HttpServlet {
-        private final WormGame game;
+        private WormGame game;
+        private final UserInterface ui;
 
-        public GameScoreServlet(WormGame game) {
+        public GameScoreServlet(WormGame game, UserInterface ui) {
             this.game = game;
+            this.ui = ui;
         }
         
         @Override
@@ -96,26 +98,19 @@ public class VncStreamServer {
             response.setCharacterEncoding("UTF-8");
             
             int score = 0;
-            String status = "started"; // default status
-            
-            if (game != null) {
-                // Check if game is over first
-                if (!game.continues()) {
+            String status = "started"; 
+            this.game = this.ui.getWormGame();
+            if (this.game != null) {
+                if (!this.game.continues()) {
                     status = "game_over";
-                    // Calculate final score when game is over
-                    if (game.getWorm() != null && game.getWorm().getLength() > 3) {
-                        score = game.getWorm().getLength() - 3;
-                    }
                 } 
-                // Game is running and worm is longer than 3
-                else if (game.continues() && game.getWorm() != null && game.getWorm().getLength() > 3) {
-                    score = game.getWorm().getLength() - 3;
+                else if (this.game.continues() && this.game.getWorm() != null && this.game.getWorm().getLength() > 3) {
+                    score = this.game.getWorm().getLength() - 3;
                     status = "running";
                 }
-                // Game is running but worm length is 3 or less (initial state)
-                else if (game.continues()) {
+                else if (this.game.continues()) {
                     status = "running";
-                    // score remains 0 for length <= 3
+                    score = 0;
                 }
             }
             
@@ -190,53 +185,53 @@ public class VncStreamServer {
               String action = req.getParameter("action");
               resp.setContentType("application/json");
               
-              if (ui == null || ui.getWormGame() == null) {
+              if (this.ui == null || this.ui.getWormGame() == null) {
                   resp.getWriter().println("{\"status\":\"error\", \"message\":\"Game not available\"}");
                   return;
               }
               
               switch (action) {
                   case "start":
-                      ui.getWormGame().start();
+                      this.ui.getWormGame().start();
                       resp.getWriter().println("{\"status\":\"success\", \"message\":\"Game started\"}");
                       break;
                       
                   case "pause":
-                      if (ui.getWormGame() instanceof Timer) {
-                          ((Timer) ui.getWormGame()).stop();
+                      if (this.ui.getWormGame() instanceof Timer) {
+                          ((Timer) this.ui.getWormGame()).stop();
                       }
                       resp.getWriter().println("{\"status\":\"success\", \"message\":\"Game paused\"}");
                       break;
                       
                   case "restart":
-                      ui.stopAndCreateNewGame();
+                      this.ui.stopAndCreateNewGame();
                       resp.getWriter().println("{\"status\":\"success\", \"message\":\"Game stopped and reset\"}");
                       break;
 
                   case "up":
-                    if (ui.getWormGame() != null) {
-                        ui.getWormGame().getWorm().setDirection(Direction.UP);
+                    if (this.ui.getWormGame() != null) {
+                        this.ui.getWormGame().getWorm().setDirection(Direction.UP);
                         resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going up\"}");
                     }
                     break;
                     
                   case "down":
-                      if (ui.getWormGame() != null) {
-                          ui.getWormGame().getWorm().setDirection(Direction.DOWN);
+                      if (this.ui.getWormGame() != null) {
+                          this.ui.getWormGame().getWorm().setDirection(Direction.DOWN);
                           resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going down\"}");
                       }
                       break;
                       
                   case "left":
-                      if (ui.getWormGame() != null) {
-                          ui.getWormGame().getWorm().setDirection(Direction.LEFT);
+                      if (this.ui.getWormGame() != null) {
+                          this.ui.getWormGame().getWorm().setDirection(Direction.LEFT);
                           resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going left\"}");
                       }
                       break;
                       
                   case "right":
-                    if (ui.getWormGame() != null) {
-                        ui.getWormGame().getWorm().setDirection(Direction.RIGHT);
+                    if (this.ui.getWormGame() != null) {
+                        this.ui.getWormGame().getWorm().setDirection(Direction.RIGHT);
                         resp.getWriter().println("{\"status\":\"success\", \"message\":\"Going right\"}");
                     }
                     break;

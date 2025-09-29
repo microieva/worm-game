@@ -81,7 +81,7 @@ public class VncStreamServer {
         }
     }
 
-    // Servlet for score (currently worm length)
+    // Servlet for score and game status (currently worm length)
     public class GameScoreServlet extends HttpServlet {
         private final WormGame game;
 
@@ -96,12 +96,30 @@ public class VncStreamServer {
             response.setCharacterEncoding("UTF-8");
             
             int score = 0;
+            String status = "started"; // default status
             
-            if (game != null && game.getWorm() != null && game.getWorm().getLength() > 3) {
-                score = game.getWorm().getLength() - 3;
+            if (game != null) {
+                // Check if game is over first
+                if (!game.continues()) {
+                    status = "game_over";
+                    // Calculate final score when game is over
+                    if (game.getWorm() != null && game.getWorm().getLength() > 3) {
+                        score = game.getWorm().getLength() - 3;
+                    }
+                } 
+                // Game is running and worm is longer than 3
+                else if (game.continues() && game.getWorm() != null && game.getWorm().getLength() > 3) {
+                    score = game.getWorm().getLength() - 3;
+                    status = "running";
+                }
+                // Game is running but worm length is 3 or less (initial state)
+                else if (game.continues()) {
+                    status = "running";
+                    // score remains 0 for length <= 3
+                }
             }
             
-            String jsonResponse = String.format("{\"score\": %d}", score);
+            String jsonResponse = String.format("{\"score\": %d, \"status\": \"%s\"}", score, status);
             response.getWriter().write(jsonResponse);
         }
     }

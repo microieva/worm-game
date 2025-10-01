@@ -88,7 +88,6 @@ echo "🔄 Phase 5: Setting up GUI dependencies for headless server..."
 echo "Installing Xvfb and virtual display dependencies..."
 sudo apt-get install -y \
     xvfb \
-    x11vnc \
     fluxbox \
     xorg
 
@@ -134,7 +133,6 @@ echo "Starting container..."
 $DOCKER_CMD run -d \
     --name worm-game \
     -p 8080:8080 \
-    -p 5900:5900 \
     --restart unless-stopped \
     worm-game
 

@@ -11,10 +11,8 @@ touch "$LOCKFILE"
 
 cleanup() {
     echo "Cleaning up..."
-    rm -f "$LOCKFILE"
     kill $XVFB_PID 2>/dev/null || true
     kill $FLUXBOX_PID 2>/dev/null || true
-    kill $VNC_PID 2>/dev/null || true
     kill $JAVA_PID 2>/dev/null || true
     rm -f /tmp/.X99-lock
     echo "Cleanup completed"
@@ -49,23 +47,13 @@ echo "Starting Fluxbox..."
 fluxbox &
 FLUXBOX_PID=$!
 
-echo "Starting VNC server..."
-if command -v ss &> /dev/null; then
-    ss -tlnp | grep :5900 | awk '{print $7}' | cut -d= -f2 | cut -d, -f1 | xargs -r kill -9
-elif command -v netstat &> /dev/null; then
-    netstat -tlnp | grep :5900 | awk '{print $7}' | cut -d'/' -f1 | xargs -r kill -9
-fi
-
-x11vnc -display :99 -forever -shared -nopw -listen 0.0.0.0 -rfbport 5900 &
-VNC_PID=$!
-
 sleep 2
 
 echo "Starting Worm Game..."
 java -jar app.jar --server.address=0.0.0.0 --server.port=8080 &
 JAVA_PID=$!
 
-echo "All services started. PID: Xvfb=$XVFB_PID, Fluxbox=$FLUXBOX_PID, VNC=$VNC_PID, Java=$JAVA_PID"
+echo "All services started. PID: Xvfb=$XVFB_PID, Fluxbox=$FLUXBOX_PID, Java=$JAVA_PID"
 
 echo "Waiting for Java application to start..."
 sleep 20

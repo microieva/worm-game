@@ -17,7 +17,7 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
           set -e  # Exit on any error
-          cd /root/worm-game
+          cd /root/projects/worm-game
           
           echo "🚀 Starting deployment process..."
 

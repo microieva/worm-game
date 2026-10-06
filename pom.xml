@@ -21,7 +21,7 @@
         <junit.version>4.13.2</junit.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jetty.version>9.4.56.v20240826</jetty.version>
-        <jackson.version>2.18.9</jackson.version>
+        <jackson.version>2.18.11</jackson.version>
     </properties>
     
     <dependencies>
